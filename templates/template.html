@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <title>{{ title }}</title>
+  <style>
+    {% for f in font_faces %}
+    @font-face {
+      font-family: "{{ f.family }}";
+      src: url("{{ f.src }}") format("{{ f.format }}");
+      font-style: normal;
+      font-weight: 400;
+    }
+    {% endfor %}
+
+    @page {
+      size: A4;
+      margin: 18mm;
+      @top-left { content: "{{ title }}"; font-size: 9pt; }
+      @bottom-right { content: "Page " counter(page) " / " counter(pages); font-size: 9pt; }
+    }
+    body {
+      font-family: "Noto Sans", "Noto Sans CJK SC", sans-serif;
+      font-size: 11pt;
+      line-height: 1.45;
+    }
+    h1 { font-size: 16pt; margin: 0 0 6mm 0; }
+    .meta { font-size: 9.5pt; margin-bottom: 6mm; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    th, td { border: 1px solid #ddd; vertical-align: top; padding: 6px; }
+    th { background: #f6f6f6; font-weight: 600; }
+    col.date { width: 30mm; }
+    .date { white-space: nowrap; font-size: 9.5pt; }
+    .text { white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
+    .url { margin-top: 4px; font-size: 9pt; }
+    .imgs { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px; }
+    .imgs img { max-width: 70mm; max-height: 70mm; object-fit: contain; border: 1px solid #eee; padding: 2px; }
+  </style>
+</head>
+<body>
+  <h1>{{ title }}</h1>
+  <div class="meta">Generated: {{ generated_at }}</div>
+
+  <table>
+    <colgroup>
+      <col class="date"/>
+      <col />
+    </colgroup>
+    <thead>
+      <tr>
+        <th>日期</th>
+        <th>内容</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for t in rows %}
+      <tr>
+        <td class="date">{{ t.created_at.strftime("%Y-%m-%d") }}</td>
+        <td>
+          <div class="text">{{ t.text_html | safe }}</div>
+          {% if t.url %}
+          <div class="url"><a href="{{ t.url }}">{{ t.url }}</a></div>
+          {% endif %}
+          {% if t.media_files %}
+          <div class="imgs">
+            {% for p in t.media_files %}
+              <a href="{{ t.url if t.url else '' }}"><img src="{{ p }}" /></a>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>
